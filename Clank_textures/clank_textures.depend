@@ -1,0 +1,34 @@
+# depslib dependency file v1.0
+1382682862 source:c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<stdarg.h>
+	<math.h>
+	<string>
+	"clank_builder.h"
+	"CSCIx229_modded.h"
+	<GLUT/glut.h>
+	<GL/glut.h>
+	"glWindow_wrapper.h"
+
+1382701022 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\clank_builder.h
+	<stdio.h>
+	<stdlib.h>
+	"CSCIx229_modded.h"
+	<GLUT/glut.h>
+	<GL/glut.h>
+	"glWindow_wrapper.h"
+
+1381720950 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\glwindow_wrapper.h
+
+1382653443 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\cscix229_modded.h
+	<stdio.h>
+	<stdlib.h>
+	<stdarg.h>
+	<string.h>
+	<math.h>
+	<ctype.h>
+	<GL/glew.h>
+	<GLUT/glut.h>
+	<GL/glut.h>
+
