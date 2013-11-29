@@ -17,15 +17,10 @@
 *   Notes to self: 1.) Making movable clank mod function.
 *                  2.) Some unnecessary functions need to be taken out later.
 *                  3.) Some refactoring is in order.
-*                  4.) The order in which glTexCoord() is called is Important!!!
 */
 
 #include <stdio.h>
 #include <stdlib.h>
-<<<<<<< HEAD
-=======
-#include "CSCIx229_modded.h"
->>>>>>> 6bfa6c6091cb2292ecd925689587085b5f187618
 
 //  OpenGL with prototypes for glext
 #define GL_GLEXT_PROTOTYPES
@@ -67,11 +62,7 @@ public:
     // Update functions
     void update_th(double Glo_th);
     void update_ph(double Glo_ph);
-    void is_light(bool Glo_Light);
-    void is_textures(bool Glo_Texture);
-    void set_whole_texture(unsigned int input_texture);
-    void set_textures(unsigned int joint, unsigned int body,
-                      unsigned int head, unsigned int mouth); // Not implemented
+    void set_light(bool Glo_Light);
 
     // Draws a hard-coded clank object. All the vertex calls are sorted
     // from top to bottom (i.e. head first and feet last) and the function
@@ -82,7 +73,6 @@ public:
     // Helper lighting functions
     // Draw vertex in polar coordinates with normal
     void Vertex(double tj, double ph);
-    void Vertex2(double tj, double ph);
     // Draw a ball at (x,y,z) with radius (r).
     void ball(double x, double y, double z, double r);
 
@@ -100,23 +90,10 @@ protected:
                       double red, double green, double blue);
 
 private:
-    bool textures_on;   // Sets textures on or off
-    bool light_on;      // Sets lights on or off
-    double dx, dy, dz;  // Not used so far...
-    double th;          // Azimuth view angle
-    double ph;          // Altitude view angle
-
-
-    // Texture for whole clank robot.
-    unsigned int whole_texture;
-
-    /*
-    // Textures for clank
-    unsigned int joint_tex;
-    unsigned int body_tex;
-    unsigned int head_tex;
-    unsigned int mouth_tex;
-    */
+    bool light_on; // 1 = light on, 0 = light off. Not used so far...
+    double dx, dy, dz; // Not used so far...
+    double th; // Azimuth view angle
+    double ph; // Altitude view angle
 };
 //----------------------------------------------------------------------------
 // Constructor
@@ -129,14 +106,6 @@ Obj_Clank::Obj_Clank(double Glo_th, double Glo_ph)
     th = Glo_th;
     ph = Glo_ph;
     light_on = false;
-    textures_on = false;
-
-    /*
-    joint_tex = 0;
-    body_tex = 0;
-    head_tex = 0;
-    mouth_tex = 0;
-    */
 }
 //----------------------------------------------------------------------------
 // Constructor
@@ -150,15 +119,32 @@ Obj_Clank::Obj_Clank(double user_dx, double user_dy, double user_dz,
     th = Glo_th;
     ph = Glo_ph;
     light_on = false;
-    textures_on = false;
+}
+//----------------------------------------------------------------------------
+// update_th
+//----------------------------------------------------------------------------
+void Obj_Clank::update_th(double Glo_th)
+{
+    th = Glo_th;
+}
+//----------------------------------------------------------------------------
+// update_ph
+//----------------------------------------------------------------------------
+void Obj_Clank::update_ph(double Glo_ph)
+{
+    ph = Glo_ph;
+}
+//----------------------------------------------------------------------------
+// Vertex
+//----------------------------------------------------------------------------
+void Obj_Clank::Vertex(double th, double ph)
+{
+    double x = Sin(th)*Cos(ph);
+    double y = Sin(ph);
+    double z = Cos(th)*Cos(ph);
 
-
-    /*
-    joint_tex = 0;
-    body_tex = 0;
-    head_tex = 0;
-    mouth_tex = 0;
-    */
+    glNormal3d(x,y,z);
+    glVertex3d(x,y,z);
 }
 //----------------------------------------------------------------------------
 // ball
@@ -183,7 +169,7 @@ void Obj_Clank::ball(double x, double y, double z, double r)
     // Band of latitude
     for(l_ph=-90; l_ph<90; l_ph+=inc)
     {
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_QUAD_STRIP);
         for(l_th=0; l_th<=360; l_th+=2*inc)
         {
             Vertex(l_th,l_ph);
@@ -195,82 +181,12 @@ void Obj_Clank::ball(double x, double y, double z, double r)
     glPopMatrix();
 }
 //----------------------------------------------------------------------------
-// update_th
+// light_on
 //----------------------------------------------------------------------------
-void Obj_Clank::update_th(double Glo_th)
-{
-    th = Glo_th;
-}
-//----------------------------------------------------------------------------
-// update_ph
-//----------------------------------------------------------------------------
-void Obj_Clank::update_ph(double Glo_ph)
-{
-    ph = Glo_ph;
-}
-
-//----------------------------------------------------------------------------
-// is_light
-//----------------------------------------------------------------------------
-void Obj_Clank::is_light(bool Glo_Light)
+void Obj_Clank::set_light(bool Glo_Light)
 {
     light_on = Glo_Light;
 }
-//----------------------------------------------------------------------------
-// is_textures
-//----------------------------------------------------------------------------
-void Obj_Clank::is_textures(bool Glo_Texture)
-{
-    textures_on = Glo_Texture;
-}
-//----------------------------------------------------------------------------
-// set_whole_texture
-//----------------------------------------------------------------------------
-void Obj_Clank::set_whole_texture(unsigned int input_texture)
-{
-    whole_texture = input_texture;
-}
-//----------------------------------------------------------------------------
-// set_textures
-//----------------------------------------------------------------------------
-void Obj_Clank::set_textures(unsigned int joint, unsigned int body,
-                             unsigned int head, unsigned int mouth)
-{
-    /*
-    joint_tex = joint;
-    body_tex = body;
-    head_tex = head;
-    mouth_tex = mouth;
-    */
-}
-//----------------------------------------------------------------------------
-// Vertex
-//----------------------------------------------------------------------------
-void Obj_Clank::Vertex(double th, double ph)
-{
-    double x = Sin(th)*Cos(ph);
-    double y = Sin(ph);
-    double z = Cos(th)*Cos(ph);
-
-
-    glNormal3d(x,y,z);
-    glVertex3d(x,y,z);
-    glTexCoord2f(th/360.0, ph/180.0+0.5);
-    //glTexCoord2f(ph/180, th/360);
-    //glTexCoord2f(th/360.0, ph/180.0+90);
-
-}
-void Obj_Clank::Vertex2(double th, double ph)
-{
-    double x = -Sin(th)*Cos(ph);
-    double y =  Cos(th)*Cos(ph);
-    double z =          Sin(ph);
-
-    glNormal3d(x,y,z);
-    glTexCoord2d(th/360.0,ph/180.0+0.5);
-    glVertex3d(x,y,z);
-}
-
 //----------------------------------------------------------------------------
 // simple_draw_clank
 //----------------------------------------------------------------------------
@@ -356,6 +272,7 @@ void Obj_Clank::cube(double x, double y, double z,
                      double dx, double dy, double dz,
                      double th, double saturation)
 {
+
     // Save transformation
     glPushMatrix();
 
@@ -370,103 +287,59 @@ void Obj_Clank::cube(double x, double y, double z,
     glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
     glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
 
+
     //Offset
     glTranslated(x,y,z);
     glRotated(th, 0, 1, 0);
     // How big to draw the cube.
     glScaled(dx, dy, dz);
 
-    if(textures_on)
-    {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, whole_texture);
-        // Draw the Cube
-        glBegin(GL_QUADS);
-
-        // Front of Z-axis cube
-        glNormal3f( 0, 0, 1);
-        glVertex3f(-1,-1,+1); glTexCoord2f(0,0);
-        glVertex3f(+1,-1,+1); glTexCoord2f(1,0);
-        glVertex3f(+1,+1,+1); glTexCoord2f(1,1);
-        glVertex3f(-1,+1,+1); glTexCoord2f(0,1);
-
-        // Back of Z-axis cube
-        glNormal3f(0, 0, -1);
-        glVertex3f(-1,-1,-1); glTexCoord2f(0,0);
-        glVertex3f(+1,-1,-1); glTexCoord2f(1,0);
-        glVertex3f(+1,+1,-1); glTexCoord2f(1,1);
-        glVertex3f(-1,+1,-1); glTexCoord2f(0,1);
-
-        //  Right
-        glNormal3f(+1, 0, 0);
-        glVertex3f(+1,-1,+1); glTexCoord2f(0,0);
-        glVertex3f(+1,-1,-1); glTexCoord2f(1,0);
-        glVertex3f(+1,+1,-1); glTexCoord2f(1,1);
-        glVertex3f(+1,+1,+1); glTexCoord2f(0,1);
-
-        //  Left
-        glNormal3f(-1, 0, 0);
-        glVertex3f(-1,-1,-1); glTexCoord2f(0,0);
-        glVertex3f(-1,-1,+1); glTexCoord2f(1,0);
-        glVertex3f(-1,+1,+1); glTexCoord2f(1,1);
-        glVertex3f(-1,+1,-1); glTexCoord2f(0,1);
-
-        //  Top
-        glNormal3f(0, +1, 0);
-        glVertex3f(-1,+1,+1); glTexCoord2f(0,0);
-        glVertex3f(+1,+1,+1); glTexCoord2f(1,0);
-        glVertex3f(+1,+1,-1); glTexCoord2f(1,1);
-        glVertex3f(-1,+1,-1); glTexCoord2f(0,1);
-
-        //  Bottom
-        glNormal3f(0, -1, 0);
-        glVertex3f(-1,-1,-1); glTexCoord2f(0,0);
-        glVertex3f(+1,-1,-1); glTexCoord2f(1,0);
-        glVertex3f(+1,-1,+1); glTexCoord2f(1,1);
-        glVertex3f(-1,-1,+1); glTexCoord2f(0,1);
-
-        glEnd();
-    }
-    else
-    {
-        glBegin(GL_QUADS);
-
-         // Front of Z-axis cube
-        glNormal3f( 0, 0, 1);
-        glVertex3f(-1,-1,+1); glVertex3f(+1,-1,+1);
-        glVertex3f(+1,+1,+1); glVertex3f(-1,+1,+1);
-
-        // Back of Z-axis cube
-        glNormal3f(0, 0, -1);
-        glVertex3f(-1,-1,-1); glVertex3f(+1,-1,-1);
-        glVertex3f(+1,+1,-1); glVertex3f(-1,+1,-1);
-
-        //  Right
-        glNormal3f(+1, 0, 0);
-        glVertex3f(+1,-1,+1); glVertex3f(+1,-1,-1);
-        glVertex3f(+1,+1,-1); glVertex3f(+1,+1,+1);
-
-        //  Left
-        glNormal3f(-1, 0, 0);
-        glVertex3f(-1,-1,-1); glVertex3f(-1,-1,+1);
-        glVertex3f(-1,+1,+1); glVertex3f(-1,+1,-1);
-
-        //  Top
-        glNormal3f(0, +1, 0);
-        glVertex3f(-1,+1,+1); glVertex3f(+1,+1,+1);
-        glVertex3f(+1,+1,-1); glVertex3f(-1,+1,-1);
-
-        //  Bottom
-        glNormal3f(0, -1, 0);
-        glVertex3f(-1,-1,-1); glVertex3f(+1,-1,-1);
-        glVertex3f(+1,-1,+1); glVertex3f(-1,-1,+1);
-
-        glEnd();
-    }
-
-    // Disable textures now
-    glDisable(GL_TEXTURE_2D);
-
+    // Draw the Cube
+    glBegin(GL_QUADS);
+    // Front of Z-axis cube
+    //glColor3f(1,0,0);
+    glNormal3f( 0, 0, 1);
+    glVertex3f(-1,-1,+1);
+    glVertex3f(+1,-1,+1);
+    glVertex3f(+1,+1,+1);
+    glVertex3f(-1,+1,+1);
+    // Back of Z-axis cube
+    //glColor3f(0,0,1);
+    glNormal3f(0, 0, -1);
+    glVertex3f(-1,-1,-1);
+    glVertex3f(+1,-1,-1);
+    glVertex3f(+1,+1,-1);
+    glVertex3f(-1,+1,-1);
+    //  Right
+    //glColor3f(1,1,0);
+    glNormal3f(+1, 0, 0);
+    glVertex3f(+1,-1,+1);
+    glVertex3f(+1,-1,-1);
+    glVertex3f(+1,+1,-1);
+    glVertex3f(+1,+1,+1);
+    //  Left
+    //glColor3f(0,1,0);
+    glNormal3f(-1, 0, 0);
+    glVertex3f(-1,-1,-1);
+    glVertex3f(-1,-1,+1);
+    glVertex3f(-1,+1,+1);
+    glVertex3f(-1,+1,-1);
+    //  Top
+    //glColor3f(0,1,1);
+    glNormal3f(0, +1, 0);
+    glVertex3f(-1,+1,+1);
+    glVertex3f(+1,+1,+1);
+    glVertex3f(+1,+1,-1);
+    glVertex3f(-1,+1,-1);
+    //  Bottom
+    //glColor3f(1,0,1);
+    glNormal3f(0, -1, 0);
+    glVertex3f(-1,-1,-1);
+    glVertex3f(+1,-1,-1);
+    glVertex3f(+1,-1,+1);
+    glVertex3f(-1,-1,+1);
+    //  End
+    glEnd();
     //  Undo transformations
     glPopMatrix();
 }
@@ -475,49 +348,34 @@ void Obj_Clank::cube(double x, double y, double z,
 //----------------------------------------------------------------------------
 void Obj_Clank::sphere(double x, double y, double z, double r, double saturation)
 {
-    const int d = 5;
+    const int d=10;
     int l_th, l_ph; // local th and local ph
     float yellow[] = {1.0,1.0,0.0,1.0};
     float Emission[] = {0.0,0.0,static_cast<float>(0.01*emission),1.0};
 
     glPushMatrix();
-
-    if(textures_on == true)
-    {
-        // Enable textures
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, whole_texture);
-    }
-
-    // Sets saturation
-    glColor3f(saturation, saturation, saturation);
-
     // Translate and scale
     glTranslated(x,y,z);
     glScaled(r,r,r);
+
+    // Sets saturation
+    glColor3f(saturation, saturation, saturation);
 
     glMaterialfv(GL_FRONT, GL_SHININESS, shinyvec);
     glMaterialfv(GL_FRONT, GL_SPECULAR, yellow);
     glMaterialfv(GL_FRONT, GL_EMISSION, Emission);
 
-
-    // This will enable modulation.
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
     // Latitude bands
     for(l_ph=-90; l_ph < 90; l_ph+=d)
     {
-        glBegin(GL_QUAD_STRIP);
-        for(l_th=0; l_th <= 360; l_th+=2*d) // Was 2*d
+        glBegin(GL_TRIANGLE_STRIP);
+        for(l_th=0; l_th <= 360; l_th+=2*d)
         {
-            Vertex2(l_th,l_ph);
-            Vertex2(l_th, l_ph+d);
+            Vertex(l_th,l_ph);
+            Vertex(l_th, l_ph+d);
         }
         glEnd();
     }
-
-    // Disable textures
-    glDisable(GL_TEXTURE_2D);
 
     // Undo Transformations
     glPopMatrix();

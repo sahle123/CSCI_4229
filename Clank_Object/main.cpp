@@ -1,17 +1,25 @@
 
 /*
  *  Sahle A. Alturaigi
- *  Nov 14, 2013
- *  Finished: ***
+ *  Sept. 25th, 2013
+ *  Finished:
  *
- *  CSCI 4229 Hw: Final Projects
+ *  CSCI 4229 Hw: objects + projection
+ *
+ *  Clank Object. This is my attempt of redrawing a character from a game I
+ *  like: Clank. This will compose a series of boxes and spheres arranged
+ *  in a certain order.
+ *
+ * Got some help from the following website:
+ * And from Professor Schreüder, Willam's example code
+ * https://svn.assembla.com/svn/LaspView/src/SpiceRender/glWindowPos.cpp (for help with glWindowPos2i() problem.
  *
  *
- *  Notes on this project can be found in CSCI 4229 notes.txt
  *
  * Self-Notes:
  *  1.) Anything that starts with Glo_ means it is a global variable.
  *  2.) CGlo_ means it is a global constant.
+ *  3.)
  */
 
 #include <stdio.h>
@@ -20,7 +28,7 @@
 #include <math.h>
 #include <string>
 #include "clank_builder.h"
-#include "CSCIx229_modded.h"
+#include "CU_shapes.h"
 
 //  OpenGL with prototypes for glext
 #define GL_GLEXT_PROTOTYPES
@@ -38,23 +46,16 @@ int Glo_th = 27;             // Azimuth of view angle
 int Glo_ph = 36;             // Elevation (Altitude) of view angle
 
 // Binary Modes
-int Glo_Mode = 2;           // 1 = Orthongonal, 2 = Perspective.
+int Glo_Mode = 2;           // 1 = Orthongonal, 2 = Perspective
 int Glo_Show_Axis = 1;      // 1 = show grid, 0 = hide grid.
-bool Glo_Light = true;      // Control variable for Lighting.
-bool Glo_Texture = false;   // Control variable for Textures.
 
 // Scaling, field of view, Aspect ratio
 double Glo_Scale = 3;      // Scale of orthogonal box (scale might not be the best word...)
 double Glo_aspect = 1;     // Aspect ratio.
 int Glo_FOV = 60;          // Field of view (for perspective)
 
-// Lighting variables go here.
-int Glo_zh      = 90;  // Light azimuth
-int local       = 0;   // Local Viewer model
-
-// Texture global variables
-unsigned int Texture_pack[4];
-unsigned int Glo_tex_num = 0;
+// Light variables
+int Glo_zh = 90;           // Light azimuth
 
 // Other
 std::string Glo_Text[2] = {"Orthogonal", "3D Persepctive"}; // Dimension display text
@@ -64,7 +65,10 @@ std::string Glo_Text[2] = {"Orthogonal", "3D Persepctive"}; // Dimension display
 #define Cos(Glo_th) cos(3.1415927/180*(Glo_th))
 #define Sin(Glo_th) sin(3.1415927/180*(Glo_th))
 
+//------------------------------------------------------------
 /*  Prototypes  */
+// Note that sphere(), cube() and polar_vertex() are in CU_shapes.h
+
 // idle function to pass to glutIdle callback.
 void idle();
 // Display function to pass to glutDisplayFunc()
@@ -79,8 +83,6 @@ void reshape(int width, int height);
 void key(unsigned char ch, int x, int y);
 // Arrow key presses
 void special_key(int key, int x, int y);
-// Check for OpenGL errors (Moved to CSCIx229_modded header file.
-//void ErrCheck(const char* where);
 //------------------------------------------------------------
 
 #define LEN 8192 // Maximum length of text string
@@ -108,9 +110,9 @@ int main(int argc, char *argv[])
     // Request double buffered, true color window
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     // Request 500 x 500 pixel window
-    glutInitWindowSize(800, 800);
+    glutInitWindowSize(1000, 1000);
     // Create the window
-    glutCreateWindow("Sahle Alturaigi: Textures");
+    glutCreateWindow("Sahle Alturaigi: Object");
     // Tell GLUT to call "display" when the scene should be drawn
     glutDisplayFunc(display);
     // Tell GLUT to call "reshape" when the window is resized
@@ -121,12 +123,6 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(key);
     // Tell GLUT to call idle when the program is not being interacted.
     glutIdleFunc(idle);
-
-    // Load textures here. (0 = joint, 1 = body, 2 = head, 3 = mouth)
-    Texture_pack[0] = LoadTexBMP("images/light_brush_metal.bmp");
-    Texture_pack[1] = LoadTexBMP("images/Brushed_gold.bmp");
-    Texture_pack[2] = LoadTexBMP("images/dark_brush_metal.bmp");
-    Texture_pack[3] = LoadTexBMP("images/metal_design.bmp");
 
     // Checks for any thrown errors
     ErrCheck("init");
@@ -152,11 +148,7 @@ void idle()
 /*  display  */
 void display()
 {
-    Obj_Clank myClank(Glo_th, Glo_ph);         // Create clank object.
-    myClank.is_textures(Glo_Texture);          // Set textures on.
-    // Set the whole texture to use.
-    myClank.set_whole_texture(Texture_pack[Glo_tex_num]);
-
+    Obj_Clank myClank;
 
     // Clear the image
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -186,48 +178,8 @@ void display()
         gluLookAt(Ex, Ey, Ez, 0, 0, 0, 0, Cos(Glo_ph), 0);
     }
 
-    /// If(textures_on), set clank object textures to on. Else, off
-    if(Glo_Light)
-    {
-        int distance = 5; // Light distance
-        myClank.is_light(Glo_Light);
-        //  Translate intensity to color vectors
-        GLfloat Ambient[]   = {static_cast<GLfloat>(0.01*ambient) ,static_cast<GLfloat>(0.01*ambient) ,static_cast<GLfloat>(0.01*ambient) ,1.0};
-        GLfloat Diffuse[]   = {static_cast<GLfloat>(0.01*diffuse) ,static_cast<GLfloat>(0.01*diffuse) ,static_cast<GLfloat>(0.01*diffuse) ,1.0};
-        GLfloat Specular[]  = {static_cast<GLfloat>(0.01*specular),static_cast<GLfloat>(0.01*specular),static_cast<GLfloat>(0.01*specular),1.0};
-        //  Light position
-        GLfloat Position[]  = {static_cast<GLfloat>(distance*Cos(Glo_zh)),ylight,static_cast<GLfloat>(distance*Sin(Glo_zh)),1.0};
-        //  Draw light position as ball (still no lighting here)
-        glColor3f(1,1,1);
-        myClank.ball(Position[0],Position[1],Position[2] , 0.3);
-        //  OpenGL should normalize normal vectors
-        glEnable(GL_NORMALIZE);
-        //  Enable lighting
-        glEnable(GL_LIGHTING);
-        //  Location of viewer for specular calculations
-        glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-        //  glColor sets ambient and diffuse color materials
-        glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-        glEnable(GL_COLOR_MATERIAL);
-        //  Enable light 0
-        glEnable(GL_LIGHT0);
-        //  Set ambient, diffuse, specular components and position of light 0
-        glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-        glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-        glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-        glLightfv(GL_LIGHT0,GL_POSITION,Position);
-
-        // Code is in clank_builder.h
-        myClank.simple_draw_clank();
-    }
-    else
-    {
-        glDisable(GL_LIGHTING);
-        myClank.is_light(Glo_Light);
-        // Code is in clank_builder.h
-        myClank.simple_draw_clank();
-    }
-    glDisable(GL_LIGHTING);
+    // Code is in clank_builder.h
+    myClank.simple_draw_clank();
 
     // Draw the cartesian coordinate plane
     draw_axes();
@@ -236,9 +188,6 @@ void display()
     glWindowPos2i(5, 5);
     Print("View Angle=%d, %d Glo_Scale=%.1f Glo_FOV=%d Projection=%s",
           Glo_th, Glo_ph, Glo_Scale, Glo_FOV, Glo_Text[Glo_Mode-1].c_str());
-    // Displays light on or off.
-    glWindowPos2i(5,25);
-    Print("Light is: %s",Glo_Light?"On":"Off");
 
     glFlush();
     glutSwapBuffers();
@@ -303,11 +252,6 @@ void reshape(int width, int height)
 }
 
 /*  key  */
-/*
-*   S/s = Toggle Lights
-*   T/t = Toggle textures
-*
-*/
 void key(unsigned char ch, int x, int y)
 {
     // If ESC, quit program.
@@ -363,25 +307,8 @@ void key(unsigned char ch, int x, int y)
         else if(Glo_Mode == 2)
             --Glo_FOV;
     }
-    else if ((ch == 's') ||(ch == 'S'))
-    {
-        Glo_Light = !Glo_Light;
-    }
-    else if ((ch == 't') || (ch == 'T'))
-    {
-        Glo_Texture = !Glo_Texture;
-    }
-    else if ((ch == 'e') || (ch == 'E'))
-    {
-        ++Glo_tex_num;
-        Glo_tex_num = Glo_tex_num % 4;
-    }
-    // Translate shininess power to value (-1 => 0)
-    shinyvec[0] = shininess<0 ? 0 : pow(2.0,shininess);
     // Reproject
     Project(Glo_aspect);
-    // Animate scene
-    glutIdleFunc(idle);
     // Tell GLUT it is necessary to redisplay the scene
     glutPostRedisplay();
 }

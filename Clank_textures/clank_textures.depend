@@ -1,5 +1,9 @@
 # depslib dependency file v1.0
+<<<<<<< HEAD
 1383306116 source:c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\main.cpp
+=======
+1382682862 source:c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\main.cpp
+>>>>>>> 6bfa6c6091cb2292ecd925689587085b5f187618
 	<stdio.h>
 	<stdlib.h>
 	<stdarg.h>
@@ -11,16 +15,29 @@
 	<GL/glut.h>
 	"glWindow_wrapper.h"
 
+<<<<<<< HEAD
 1384305164 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\clank_builder.h
 	<stdio.h>
 	<stdlib.h>
+=======
+1382701022 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\clank_builder.h
+	<stdio.h>
+	<stdlib.h>
+	"CSCIx229_modded.h"
+>>>>>>> 6bfa6c6091cb2292ecd925689587085b5f187618
 	<GLUT/glut.h>
 	<GL/glut.h>
 	"glWindow_wrapper.h"
 
+<<<<<<< HEAD
 1381717350 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\glwindow_wrapper.h
 
 1382649843 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\cscix229_modded.h
+=======
+1381720950 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\glwindow_wrapper.h
+
+1382653443 c:\users\sahle alturaigi\codeblocks c++ projects\csci 4229\clank_textures\cscix229_modded.h
+>>>>>>> 6bfa6c6091cb2292ecd925689587085b5f187618
 	<stdio.h>
 	<stdlib.h>
 	<stdarg.h>
