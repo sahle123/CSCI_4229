@@ -22,10 +22,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-<<<<<<< HEAD
-=======
-#include "CSCIx229_modded.h"
->>>>>>> 6bfa6c6091cb2292ecd925689587085b5f187618
 
 //  OpenGL with prototypes for glext
 #define GL_GLEXT_PROTOTYPES
