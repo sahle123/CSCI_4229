@@ -14,7 +14,6 @@
  * Self-Notes:
  *  1.) Anything that starts with Glo_ means it is a global variable.
  *  2.) CGlo_ means it is a global constant.
- *  3.)
  */
 
 #include <stdio.h>
@@ -45,7 +44,7 @@ int Glo_Show_Axis = 1;      // 1 = show grid, 0 = hide grid.
 int Glo_Light = 1;          // 1 = Light on, 0 = Light off.
 
 // Scaling, field of view, Aspect ratio
-double Glo_Scale = 3;      // Scale of orthogonal box (scale might not be the best word...)
+double Glo_Scale = 5;      // Scale of orthogonal box (scale might not be the best word...)
 double Glo_aspect = 1;     // Aspect ratio.
 int Glo_FOV = 60;          // Field of view (for perspective)
 

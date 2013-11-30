@@ -68,7 +68,6 @@ public:
     // from top to bottom (i.e. head first and feet last) and the function
     // calls are separated by their type (i.e. cube and sphere).
     void simple_draw_clank();
-    /// movable clank function here.
 
     // Helper lighting functions
     // Draw vertex in polar coordinates with normal
@@ -88,6 +87,8 @@ protected:
     // Draw a sphere with specified colors
     void color_sphere(double x, double y, double z, double r,
                       double red, double green, double blue);
+    // Draws a pyramid of size (s) at rotated at (r) at (x,y,z)
+    void pyramid(double x, double y, double z, double s, double r);
 
 private:
     bool light_on; // 1 = light on, 0 = light off. Not used so far...
@@ -261,6 +262,12 @@ void Obj_Clank::simple_draw_clank()
     cube(-0.4,-1.3,0.15, 0.1,0.1,0.25, 0.0, 0.7); // Right foot
     cube(+0.4,-1.3,0.15, 0.1,0.1,0.25, 0.0, 0.7); // Left foot
     /// End draw Clank
+
+    // Draw pyramid
+    pyramid(3.0, 0.5, -1.0, 0.0, 0.7);
+    pyramid(-2.0, 0.5, 1.5, 80, 0.7);
+    pyramid(-2.0, 0.5, -1.5, 150, 1.0);
+
 
     glEnd();
     glPopMatrix();
@@ -459,4 +466,60 @@ void Obj_Clank::color_sphere(double x, double y, double z, double r,
     // Undo Transformations
     glPopMatrix();
 }
+//----------------------------------------------------------------------------
+// Pyramid
+//----------------------------------------------------------------------------
+void Obj_Clank::pyramid(double x, double y, double z, double r, double s)
+{
+    // Save transformation
+    glPushMatrix();
+
+    // Set specular color to white
+    float white[] = {1,1,1,1};
+    float black[] = {0,0,0,1};
+
+    // Set Color to purple
+    glColor3d(0.5,0.0,0.5);
+
+    // Offset and scaled and rotated
+    glTranslated(x,y,z);
+    glScaled(s,s,s);
+    glRotated(r, 0, 1, 0);
+
+    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,shinyvec);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
+
+    glBegin(GL_TRIANGLES);
+
+    // Front side
+    glNormal3f(0.0,0.2,1.0);
+    glVertex3f(0.0, 1.0, 0.0);
+    glVertex3f(-1.0, -1.0, 1.0);
+    glVertex3f(1.0, -1.0, 1.0);
+
+    // Back-right side
+    glNormal3f(-0.7,0.2,-0.7);
+    glVertex3f(0.0,1.0,0.0);
+    glVertex3f(-1.0,-1.0,1.0);
+    glVertex3f(0.0,-1.0,-1.0);
+
+    // Back-left side
+    glNormal3f(+0.7,0.2,-0.3);
+    glVertex3f(0.0,1.0,0.0);
+    glVertex3f(0.0,-1.0,-1.0);
+    glVertex3f(1.0,-1.0,1.0);
+
+    // Bottom
+    glNormal3f(0.0,-1.0,0.0);
+    glVertex3f(-1.0,-1.0,1.0);
+    glVertex3f(0.0,-1.0,-1.0);
+    glVertex3f(1.0,-1.0,1.0);
+
+    glEnd();
+
+    glColor3d(1,1,1); // So that the rasterized text does not change color
+    glPopMatrix();
+}
+
 #endif // CLANK_BUILDER_H_INCLUDED
